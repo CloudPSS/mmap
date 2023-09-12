@@ -4,7 +4,7 @@ on:
   workflow_call:
 
 jobs:
-  build-common:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -40,7 +40,7 @@ jobs:
             dist/
 
   test:
-    needs: pack
+    needs: build
     strategy:
       matrix:
         node: ['lts/-1', 'lts/*', 'latest']
