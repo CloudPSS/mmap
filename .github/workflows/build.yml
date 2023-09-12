@@ -26,11 +26,6 @@ jobs:
           pnpm build:gyp-cross -i centos7-devtoolset7
           pnpm build:gyp-cross -i linux-arm64
 
-      - name: Upload prebuild artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: prebuilds
-          path: prebuilds/
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
