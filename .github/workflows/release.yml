@@ -28,6 +28,8 @@ jobs:
           pnpm-version: 8
 
       - name: Publish
-        run: npm publish --access=public
+        run: |
+          cat ~/.npmrc
+          npm publish --access=public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
