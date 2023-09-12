@@ -1,6 +1,6 @@
 {
   "name": "@cloudpss/mmap",
-  "version": "0.2.7",
+  "version": "0.0.0",
   "description": "mmap n-api addon for node.js",
   "author": "OpportunityLiu <opportunity@live.in>",
   "license": "MIT",
@@ -15,6 +15,9 @@
   "engines": {
     "node": ">=14.16"
   },
+  "os": [
+    "linux"
+  ],
   "type": "module",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
