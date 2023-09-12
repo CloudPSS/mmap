@@ -1,0 +1,9 @@
+root: true
+extends: '@cloudpss'
+env:
+  es2021: true
+  node: true
+overrides:
+  - files: tests/**/*
+    env:
+      jest: true

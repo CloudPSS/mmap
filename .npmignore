@@ -1,0 +1,9 @@
+/.*
+/build/
+*.ps1
+/*.tgz
+/tests/
+/benchmark/
+/coverage/
+tsconfig.json
+*.config.js
