@@ -26,14 +26,15 @@ Napi::Buffer<uint8_t> node_mmap(const Napi::CallbackInfo &info)
   }
   auto length = info[1].As<Napi::Number>().Int64Value();
   const auto path = info[0].As<Napi::String>().Utf8Value();
-  const auto fd = std::unique_ptr(open(path.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR), close);
-  if (fd == -1)
+  const auto fd = std::unique_ptr<int, void (*)(int *)>(new int(::open(path.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)), [](int *fd)
+                                                        { ::close(*fd); delete fd; });
+  if (*fd == -1)
   {
     Napi::TypeError::New(env, "open failed").ThrowAsJavaScriptException();
     return Napi::Buffer<uint8_t>::New(env, 0);
   }
   struct stat sb;
-  if (fstat(fd, &sb) == -1)
+  if (fstat(*fd, &sb) == -1)
   {
     Napi::TypeError::New(env, "fstat failed").ThrowAsJavaScriptException();
     return Napi::Buffer<uint8_t>::New(env, 0);
@@ -44,9 +45,12 @@ Napi::Buffer<uint8_t> node_mmap(const Napi::CallbackInfo &info)
   }
   else if (length > sb.st_size)
   {
-    ftruncate(fd, length);
+    if (ftruncate(*fd, length) == -1)
+    {
+      length = sb.st_size;
+    }
   }
-  void *ptr = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  void *ptr = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, *fd, 0);
   if (ptr == MAP_FAILED)
   {
     Napi::TypeError::New(env, "mmap failed").ThrowAsJavaScriptException();

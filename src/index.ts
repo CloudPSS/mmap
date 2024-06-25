@@ -11,7 +11,11 @@ const bindings = require('node-gyp-build')(rootDir) as {
     mmap(path: string, length: number): Buffer;
 };
 
-/** create mmap */
+/**
+ * create mmap
+ * @param path - path to file
+ * @param length - length of mmap, if not provided, the whole file will be mapped, if length is larger than file size, the file will be extended with zeros
+ */
 export function mmap(path: string, length?: number): Buffer {
     if (typeof path !== 'string') throw new TypeError('path must be a string');
     length = Number(length);
