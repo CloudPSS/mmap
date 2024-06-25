@@ -4,6 +4,7 @@
     "noEmit": true,
     "allowJs": true,
     "checkJs": true,
+    "isolatedDeclarations": false,
     "rootDir": "..",
     "module": "NodeNext",
     "moduleResolution": "NodeNext"
