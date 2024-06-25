@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: lts/*
           node-registry-url: https://registry.npmjs.org
-          pnpm-version: 8
+          pnpm-version: 9
 
       - name: Publish
         run: npm publish --access=public

@@ -8,12 +8,14 @@ const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), './../');
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-var-requires
 const bindings = require('node-gyp-build')(rootDir) as {
     /** create mmap */
-    mmap(path: string): Buffer;
+    mmap(path: string, length: number): Buffer;
 };
 
 /** create mmap */
-export function mmap(path: string): Buffer {
+export function mmap(path: string, length?: number): Buffer {
     if (typeof path !== 'string') throw new TypeError('path must be a string');
+    length = Number(length);
+    if (!Number.isSafeInteger(length) || length <= 0) length = -1;
     path = resolve(path);
-    return bindings.mmap(path);
+    return bindings.mmap(path, length);
 }

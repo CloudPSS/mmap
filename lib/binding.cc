@@ -3,11 +3,12 @@
 #include <sys/fcntl.h>
 #include <unistd.h>
 #include <napi.h>
+#include <memory>
 
 Napi::Buffer<uint8_t> node_mmap(const Napi::CallbackInfo &info)
 {
   Napi::Env env = info.Env();
-  if (info.Length() != 1)
+  if (info.Length() != 2)
   {
     Napi::TypeError::New(env, "Wrong number of arguments")
         .ThrowAsJavaScriptException();
@@ -18,23 +19,41 @@ Napi::Buffer<uint8_t> node_mmap(const Napi::CallbackInfo &info)
     Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
     return Napi::Buffer<uint8_t>::New(env, 0);
   }
+  if (!info[1].IsNumber())
+  {
+    Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
+    return Napi::Buffer<uint8_t>::New(env, 0);
+  }
+  auto length = info[1].As<Napi::Number>().Int64Value();
   const auto path = info[0].As<Napi::String>().Utf8Value();
-  const auto fd = open(path.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+  const auto fd = std::unique_ptr(open(path.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR), close);
   if (fd == -1)
   {
     Napi::TypeError::New(env, "open failed").ThrowAsJavaScriptException();
     return Napi::Buffer<uint8_t>::New(env, 0);
   }
-  const auto size = lseek(fd, 0, SEEK_END);
-  void *ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-  close(fd);
+  struct stat sb;
+  if (fstat(fd, &sb) == -1)
+  {
+    Napi::TypeError::New(env, "fstat failed").ThrowAsJavaScriptException();
+    return Napi::Buffer<uint8_t>::New(env, 0);
+  }
+  if (length <= 0)
+  {
+    length = sb.st_size;
+  }
+  else if (length > sb.st_size)
+  {
+    ftruncate(fd, length);
+  }
+  void *ptr = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
   if (ptr == MAP_FAILED)
   {
     Napi::TypeError::New(env, "mmap failed").ThrowAsJavaScriptException();
     return Napi::Buffer<uint8_t>::New(env, 0);
   }
-  return Napi::Buffer<uint8_t>::New(env, static_cast<uint8_t *>(ptr), size, [](Napi::Env env, void *data)
-                                    { munmap(data, 0); });
+  return Napi::Buffer<uint8_t>::New(env, static_cast<uint8_t *>(ptr), length, [=](Napi::Env env, void *data)
+                                    { munmap(data, length); });
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports)
