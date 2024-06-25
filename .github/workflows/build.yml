@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v3
@@ -24,7 +24,7 @@ jobs:
       - name: Prebuildify
         run: |
           pnpm build:gyp-cross -i centos7-devtoolset7
-          pnpm build:gyp-cross -i linux-arm64
+          pnpm build:gyp-cross -i linux-arm64-lts
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
