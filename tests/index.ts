@@ -5,9 +5,9 @@ import { randomBytes } from 'node:crypto';
 describe('mmap', () => {
     it('should reject bad input', () => {
         // @ts-expect-error - bad input
-        expect(() => mmap(1)).toThrowError(TypeError);
+        expect(() => mmap(1)).toThrow(TypeError);
         // @ts-expect-error - bad input
-        expect(() => mmap()).toThrowError(TypeError);
+        expect(() => mmap()).toThrow(TypeError);
     });
 
     it('should work', async () => {
