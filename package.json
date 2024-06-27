@@ -43,11 +43,11 @@
     "extends": "@cloudpss"
   },
   "devDependencies": {
-    "@cloudpss/commitlint-config": "^2.1.2",
-    "@cloudpss/eslint-config": "^2.1.2",
-    "@cloudpss/lint-staged-config": "^2.1.2",
-    "@cloudpss/prettier-config": "^2.1.2",
-    "@cloudpss/tsconfig": "^2.1.2",
+    "@cloudpss/commitlint-config": "^2.1.3",
+    "@cloudpss/eslint-config": "^2.1.3",
+    "@cloudpss/lint-staged-config": "^2.1.3",
+    "@cloudpss/prettier-config": "^2.1.3",
+    "@cloudpss/tsconfig": "^2.1.3",
     "@jest/globals": "^29.7.0",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.14.9",

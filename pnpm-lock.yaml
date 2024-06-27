@@ -23,20 +23,20 @@ importers:
         version: 4.8.1
     devDependencies:
       '@cloudpss/commitlint-config':
-        specifier: ^2.1.2
-        version: 2.1.2(@types/node@20.14.9)(typescript@5.5.2)
+        specifier: ^2.1.3
+        version: 2.1.3(@types/node@20.14.9)(typescript@5.5.2)
       '@cloudpss/eslint-config':
-        specifier: ^2.1.2
-        version: 2.1.2(@types/eslint@8.56.10)(typescript@5.5.2)
+        specifier: ^2.1.3
+        version: 2.1.3(@types/eslint@8.56.10)(typescript@5.5.2)
       '@cloudpss/lint-staged-config':
-        specifier: ^2.1.2
-        version: 2.1.2
+        specifier: ^2.1.3
+        version: 2.1.3
       '@cloudpss/prettier-config':
-        specifier: ^2.1.2
-        version: 2.1.2
+        specifier: ^2.1.3
+        version: 2.1.3
       '@cloudpss/tsconfig':
-        specifier: ^2.1.2
-        version: 2.1.2(typescript@5.5.2)
+        specifier: ^2.1.3
+        version: 2.1.3(typescript@5.5.2)
       '@jest/globals':
         specifier: ^29.7.0
         version: 29.7.0
@@ -278,35 +278,35 @@ packages:
     resolution:
       { integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw== }
 
-  '@cloudpss/commitlint-config@2.1.2':
+  '@cloudpss/commitlint-config@2.1.3':
     resolution:
-      { integrity: sha512-SS+bwk8mAZSjuaGZiY3RnkZY/+076a4KblzSz4wD7czAJz+50gm0HhIG81c/J3Ou+sAYI1X+OkiHEUeYwhtlrA== }
+      { integrity: sha512-dI/HhzyuJjElpl+WFeZrZ9i9pyOvVZEV4FPDW2CZx3Q/n8FfE+efpVfQd+iHIm1v7V9oXPKAwyHfrLeBxbir8g== }
 
-  '@cloudpss/eslint-config-js@2.1.2':
+  '@cloudpss/eslint-config-js@2.1.3':
     resolution:
-      { integrity: sha512-sYCZzidEVOgOZdDdUqu+VZCuf4q1tCIruyF7Vl7dCgNiHa5v0ASSCPUj2DlN+IZmD/ZeWrkuXCMP5W2ei3tO2g== }
+      { integrity: sha512-g61Zb0TZyKC//XK+0rm6yAkJ1YHPbVehySnKuqtFjkWJEm8bXyRc+WQ4gup9Rpb5/aMJk7Et2xGoHuIeOE+z5g== }
 
-  '@cloudpss/eslint-config-ts@2.1.2':
+  '@cloudpss/eslint-config-ts@2.1.3':
     resolution:
-      { integrity: sha512-nUZnMq2Dz8ZjzZXXVonRbM9S2Vr18jnBjrpHXQgxPKPe2UhS97GBz0V9ebkB9IERFD7H1E1jlSvEEMEW/v12lg== }
+      { integrity: sha512-4pxq1AAV5oL1HUuVRg3a3Cg3zGi6Wnm38L3mMvB/zoTpwITGVApjbM7KYUyb9BSp0m7tdarErivIdLwnORoTjg== }
     peerDependencies:
       typescript: '>=4'
 
-  '@cloudpss/eslint-config@2.1.2':
+  '@cloudpss/eslint-config@2.1.3':
     resolution:
-      { integrity: sha512-LtEH6EPIvvreGH4KBb6Aw6PVEhCjBB+yC3COaLZg6RueK4grHFfvqn7dDnB+i7ltKjMmIHwm2UE+Gs5xNn6hGA== }
+      { integrity: sha512-ChNy9i+UYNijsQo3qofSF4pEbyL7wiC9PzK38rlJRv+miG+MBeh76QuFeMRn6/sEmcKjoTtAeVap9FzzMQU0cA== }
 
-  '@cloudpss/lint-staged-config@2.1.2':
+  '@cloudpss/lint-staged-config@2.1.3':
     resolution:
-      { integrity: sha512-d0AYCSEI4BP0hq0fJjpyRP3ploaoVX/Cd4jWD9NvsN/NhJX0TXnRPA2hkY9Gul5Ead7GK5n62ky0cs6qJMM/mQ== }
+      { integrity: sha512-TjdcNV/+4y0TfefuV2TLfuBh2H4+fjIvF/XCHBvXxwVuR8Kdaibuiyi+AWj7imc6TLuqhZ59VT4v/TLY6WxC6Q== }
 
-  '@cloudpss/prettier-config@2.1.2':
+  '@cloudpss/prettier-config@2.1.3':
     resolution:
-      { integrity: sha512-e3vQUsoiiF0LtEWGc/49Vdf39Dmfi7CUlj659cL93p6eTPzVdCOYmkTmgfEhYUV5BAIi1dYZ7/dd502WpslbJg== }
+      { integrity: sha512-Gj7SY77a2U+WzOWgEGKf7C5lgNSNBzhxYHoGcOgyc1TQTG8/j4JcLp6Mwy9kc4MkEwUn1dnvz/rLqjHtwRaTJg== }
 
-  '@cloudpss/tsconfig@2.1.2':
+  '@cloudpss/tsconfig@2.1.3':
     resolution:
-      { integrity: sha512-9e1unUezQsQlv3y3j3tFTSm/dDJtRMwQea/zVsAbtMyDZ5l4P+HrMLFvn8f8N6KC4sq6yOV489G4CIhs0vgTFA== }
+      { integrity: sha512-fgD1NrzbexGHM1YkcO3OyLcY6EBIv5EaOQEvfqkUkyUjNIuiL43XD3hX2KZ2kqKc45VKgVfVRhQdEN+DQ1A/GQ== }
     peerDependencies:
       typescript: '>=5'
 
@@ -1531,9 +1531,9 @@ packages:
     peerDependencies:
       eslint: '>=7.0.0'
 
-  eslint-plugin-jsdoc@48.4.0:
+  eslint-plugin-jsdoc@48.5.0:
     resolution:
-      { integrity: sha512-xBUxuAx03cKoEA7y+MYSUdwyN8AJyZHbAJ257sOFXgVgCScm574S4zEYJpBoARwaCu4chhCbvA+gdm+00whlxA== }
+      { integrity: sha512-ukXPNpGby3KjCveCizIS8t1EbuJEHYEu/tBg8GCbn/YbHcXwphyvYCdvRZ/oMRfTscGSSzfsWoZ+ZkAP0/6YMQ== }
     engines: { node: '>=18' }
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
@@ -2611,6 +2611,11 @@ packages:
   minimatch@9.0.4:
     resolution:
       { integrity: sha512-KqWh+VchfxcMNRAJjj2tnsSJdNbHsVgnkBhTNrW7AjVo6OvLtxw8zfT9oLw1JSohlFzJ8jCoTgaoXvJ+kHt6fw== }
+    engines: { node: '>=16 || 14 >=14.17' }
+
+  minimatch@9.0.5:
+    resolution:
+      { integrity: sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow== }
     engines: { node: '>=16 || 14 >=14.17' }
 
   minimist@1.2.8:
@@ -4010,19 +4015,19 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
-  '@cloudpss/commitlint-config@2.1.2(@types/node@20.14.9)(typescript@5.5.2)':
+  '@cloudpss/commitlint-config@2.1.3(@types/node@20.14.9)(typescript@5.5.2)':
     dependencies:
       '@commitlint/cli': 19.3.0(@types/node@20.14.9)(typescript@5.5.2)
     transitivePeerDependencies:
       - '@types/node'
       - typescript
 
-  '@cloudpss/eslint-config-js@2.1.2(@types/eslint@8.56.10)':
+  '@cloudpss/eslint-config-js@2.1.3(@types/eslint@8.56.10)':
     dependencies:
-      '@cloudpss/prettier-config': 2.1.2
+      '@cloudpss/prettier-config': 2.1.3
       eslint: 8.57.0
       eslint-config-prettier: 9.1.0(eslint@8.57.0)
-      eslint-plugin-jsdoc: 48.4.0(eslint@8.57.0)
+      eslint-plugin-jsdoc: 48.5.0(eslint@8.57.0)
       eslint-plugin-prettier: 5.1.3(@types/eslint@8.56.10)(eslint-config-prettier@9.1.0(eslint@8.57.0))(eslint@8.57.0)(prettier@3.3.2)
       eslint-plugin-unicorn: 54.0.0(eslint@8.57.0)
       prettier: 3.3.2
@@ -4030,9 +4035,9 @@ snapshots:
       - '@types/eslint'
       - supports-color
 
-  '@cloudpss/eslint-config-ts@2.1.2(@types/eslint@8.56.10)(typescript@5.5.2)':
+  '@cloudpss/eslint-config-ts@2.1.3(@types/eslint@8.56.10)(typescript@5.5.2)':
     dependencies:
-      '@cloudpss/eslint-config-js': 2.1.2(@types/eslint@8.56.10)
+      '@cloudpss/eslint-config-js': 2.1.3(@types/eslint@8.56.10)
       '@typescript-eslint/eslint-plugin': 7.14.1(@typescript-eslint/parser@7.14.1(eslint@8.57.0)(typescript@5.5.2))(eslint@8.57.0)(typescript@5.5.2)
       '@typescript-eslint/parser': 7.14.1(eslint@8.57.0)(typescript@5.5.2)
       eslint: 8.57.0
@@ -4041,16 +4046,16 @@ snapshots:
       - '@types/eslint'
       - supports-color
 
-  '@cloudpss/eslint-config@2.1.2(@types/eslint@8.56.10)(typescript@5.5.2)':
+  '@cloudpss/eslint-config@2.1.3(@types/eslint@8.56.10)(typescript@5.5.2)':
     dependencies:
-      '@cloudpss/eslint-config-ts': 2.1.2(@types/eslint@8.56.10)(typescript@5.5.2)
+      '@cloudpss/eslint-config-ts': 2.1.3(@types/eslint@8.56.10)(typescript@5.5.2)
       eslint: 8.57.0
     transitivePeerDependencies:
       - '@types/eslint'
       - supports-color
       - typescript
 
-  '@cloudpss/lint-staged-config@2.1.2':
+  '@cloudpss/lint-staged-config@2.1.3':
     dependencies:
       eslint: 8.57.0
       lint-staged: 15.2.7
@@ -4058,11 +4063,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@cloudpss/prettier-config@2.1.2':
+  '@cloudpss/prettier-config@2.1.3':
     dependencies:
       prettier: 3.3.2
 
-  '@cloudpss/tsconfig@2.1.2(typescript@5.5.2)':
+  '@cloudpss/tsconfig@2.1.3(typescript@5.5.2)':
     dependencies:
       typescript: 5.5.2
 
@@ -4602,7 +4607,7 @@ snapshots:
       debug: 4.3.5
       globby: 11.1.0
       is-glob: 4.0.3
-      minimatch: 9.0.4
+      minimatch: 9.0.5
       semver: 7.6.2
       ts-api-utils: 1.3.0(typescript@5.5.2)
     optionalDependencies:
@@ -5347,7 +5352,7 @@ snapshots:
     dependencies:
       eslint: 8.57.0
 
-  eslint-plugin-jsdoc@48.4.0(eslint@8.57.0):
+  eslint-plugin-jsdoc@48.5.0(eslint@8.57.0):
     dependencies:
       '@es-joy/jsdoccomment': 0.43.1
       are-docs-informative: 0.0.2
@@ -6430,6 +6435,10 @@ snapshots:
       brace-expansion: 1.1.11
 
   minimatch@9.0.4:
+    dependencies:
+      brace-expansion: 2.0.1
+
+  minimatch@9.0.5:
     dependencies:
       brace-expansion: 2.0.1
 
