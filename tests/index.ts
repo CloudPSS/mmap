@@ -19,6 +19,15 @@ describe('mmap', () => {
         expect(mapped).toEqual(data);
     });
 
+    it('should work with empty file', async () => {
+        const data = randomBytes(0);
+        await fs.writeFile('/dev/shm/xx', data);
+        const mapped = mmap('/dev/shm/xx');
+        expect(mapped).toBeInstanceOf(Buffer);
+        expect(mapped).toHaveLength(0);
+        expect(mapped).toEqual(data);
+    });
+
     it('should work with smaller size', async () => {
         const data = randomBytes(1024);
         await fs.writeFile('/dev/shm/yy', data);
