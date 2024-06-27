@@ -23,7 +23,7 @@ const buffer = mmap('/file/to/mmap');
 
 ## API
 
-### `mmap(file: string): Buffer`
+### `mmap(file: string, length?: number): Buffer`
 
 ## License
 
