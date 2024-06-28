@@ -47,4 +47,22 @@ describe('mmap', () => {
         expect(mapped.subarray(1024)).toEqual(Buffer.alloc(1024));
         expect((await fs.stat('/dev/shm/zz')).size).toBe(2048);
     });
+
+    it('should accept custom view', async () => {
+        const data = randomBytes(1024);
+        await fs.writeFile('/dev/shm/xx', data);
+        const mapped = mmap(DataView, '/dev/shm/xx');
+        expect(mapped).toBeInstanceOf(DataView);
+        expect(mapped.byteLength).toBe(1024);
+        expect(mapped.buffer).toEqual(data.buffer);
+    });
+
+    it('should accept custom view', async () => {
+        const data = randomBytes(1024);
+        await fs.writeFile('/dev/shm/xx', data);
+        const mapped = mmap(Int32Array, '/dev/shm/xx', 6);
+        expect(mapped).toBeInstanceOf(Int32Array);
+        expect(mapped).toHaveLength(1);
+        expect(mapped.byteLength).toBe(4);
+    });
 });

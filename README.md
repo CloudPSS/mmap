@@ -25,6 +25,8 @@ const buffer = mmap('/file/to/mmap');
 
 ### `mmap(file: string, length?: number): Buffer`
 
+### `mmap<T>(view: new (buffer: ArrayBufferLike) => T, path: string, length?: number): T`
+
 ## License
 
 MIT
