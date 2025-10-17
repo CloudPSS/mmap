@@ -26,7 +26,6 @@ jobs:
         uses: wyvox/action-setup-pnpm@v3
         with:
           node-version: lts/*
-          pnpm-version: 9
 
       - name: Pack
         run: pnpm pack

@@ -14,7 +14,6 @@ jobs:
         uses: wyvox/action-setup-pnpm@v3
         with:
           node-version: lts/*
-          pnpm-version: 9
           args: --ignore-scripts
 
       - name: Build
@@ -53,7 +52,6 @@ jobs:
         uses: wyvox/action-setup-pnpm@v3
         with:
           node-version: ${{ matrix.node }}
-          pnpm-version: 9
 
       - name: Run test with prebuilds
         run: pnpm test
