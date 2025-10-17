@@ -4,10 +4,6 @@ on:
   push:
     tags: ['*']
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   build:
     uses: ./.github/workflows/build.yml
@@ -16,6 +12,8 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -35,4 +33,4 @@ jobs:
         run: npm install -g npm@latest
 
       - name: Publish
-        run: npm publish --access=public
+        run: npm publish --access=public --tag=${{ contains(github.ref, 'alpha') && 'alpha' || contains(github.ref, 'beta') && 'beta' || 'latest' }}
