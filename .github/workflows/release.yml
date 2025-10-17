@@ -4,6 +4,10 @@ on:
   push:
     tags: ['*']
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build:
     uses: ./.github/workflows/build.yml
@@ -26,9 +30,6 @@ jobs:
         with:
           node-version: lts/*
           node-registry-url: https://registry.npmjs.org
-          pnpm-version: 9
 
       - name: Publish
         run: npm publish --access=public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

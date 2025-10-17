@@ -9,7 +9,6 @@
 /prebuilds/**/*.node
 /*.tgz
 
-
 # generated files
 *.g.*
 
@@ -28,6 +27,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+nohup.out
+
+# Cache
+v8-compile-cache-*/
+node-compile-cache/
+.eslintcache
 
 # OS
 .DS_Store
@@ -36,6 +41,9 @@ lerna-debug.log*
 coverage/
 .nyc_output/
 .eslint-report/
+*.cpuprofile
+*.heapprofile
+*.heapsnapshot
 
 # IDEs and editors
 /.idea

@@ -1,11 +1,10 @@
 import { createRequire } from 'node:module';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 
 const require = createRequire(import.meta.url);
-const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), './../');
+const rootDir = resolve(import.meta.dirname, './../');
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 const bindings = require('node-gyp-build')(rootDir) as {
     /** create mmap */
     mmap(path: string, length: number): Buffer;

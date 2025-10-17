@@ -1,0 +1,13 @@
+ignoredBuiltDependencies:
+  - unrs-resolver
+
+patchedDependencies:
+  '@vweevers/docker-pull@1.1.1': patches/@vweevers__docker-pull@1.1.1.patch
+
+publicHoistPattern:
+  - '*eslint*'
+  - '*prettier*'
+  - '*commitlint*'
+  - lint-staged
+
+shellEmulator: true
