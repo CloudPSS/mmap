@@ -1,7 +1,7 @@
 import { mmap } from '@cloudpss/mmap';
 import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
-import { randomBytes } from 'node:crypto';
+import { randomBytes, randomFillSync } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 
@@ -69,5 +69,20 @@ describe('mmap', () => {
         expect(mapped).toBeInstanceOf(Int32Array);
         expect(mapped).toHaveLength(1);
         expect(mapped.byteLength).toBe(4);
+    });
+});
+
+describe('mmap shm', () => {
+    it('should work', () => {
+        const mapped = mmap('/dev/shm/mmap', 1024);
+        expect(mapped).toBeInstanceOf(Buffer);
+        expect(mapped).toHaveLength(1024);
+        randomFillSync(mapped);
+
+        const mapped2 = mmap('/dev/shm/mmap', 1024);
+        expect(mapped2).toBeInstanceOf(Buffer);
+        expect(mapped2).toHaveLength(1024);
+        expect(mapped2).toEqual(mapped);
+        expect(mapped2).not.toBe(mapped);
     });
 });
