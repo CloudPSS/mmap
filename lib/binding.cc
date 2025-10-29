@@ -5,6 +5,28 @@
 #include <napi.h>
 #include <memory>
 
+auto open_file(const std::string &path) -> std::unique_ptr<int, void (*)(int *)>
+{
+  int fd = 0;
+  // If the path starts with /dev/shm/, and contains no other slashes, open it as a shared memory object
+  if (path.rfind("/dev/shm/", 0) == 0 && path.find('/', 10) == std::string::npos)
+  {
+    auto shm_name = path.substr(8); // remove /dev/shm
+    fd = ::shm_open(shm_name.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+  }
+  else
+  {
+    fd = ::open(path.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+  }
+  if (fd == -1)
+  {
+    Napi::TypeError::New(env, "open failed, errno=" + std::to_string(errno)).ThrowAsJavaScriptException();
+    return nullptr;
+  }
+  return std::unique_ptr<int, void (*)(int *)>(new int(fd), [](int *fd)
+                                               { ::close(*fd); delete fd; });
+}
+
 Napi::Buffer<uint8_t> node_mmap(const Napi::CallbackInfo &info)
 {
   Napi::Env env = info.Env();
@@ -26,13 +48,12 @@ Napi::Buffer<uint8_t> node_mmap(const Napi::CallbackInfo &info)
   }
   auto length = info[1].As<Napi::Number>().Int64Value();
   const auto path = info[0].As<Napi::String>().Utf8Value();
-  const auto fd = std::unique_ptr<int, void (*)(int *)>(new int(::open(path.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)), [](int *fd)
-                                                        { ::close(*fd); delete fd; });
-  if (*fd == -1)
+  const auto fd = open_file(path);
+  if (!fd)
   {
-    Napi::TypeError::New(env, "open failed, errno=" + std::to_string(errno)).ThrowAsJavaScriptException();
     return Napi::Buffer<uint8_t>::New(env, 0);
   }
+
   struct stat sb;
   if (fstat(*fd, &sb) == -1)
   {
