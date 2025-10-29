@@ -4,11 +4,11 @@ on:
   workflow_call:
 
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install
         uses: wyvox/action-setup-pnpm@v3
@@ -26,7 +26,36 @@ jobs:
           pnpm build:gyp-cross -t $(node -v) -i linux-arm64-lts
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
+        with:
+          name: build
+          path: |
+            prebuilds/
+            dist/
+
+  build-darwin:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install
+        uses: wyvox/action-setup-pnpm@v3
+        with:
+          node-version: lts/*
+          args: --ignore-scripts
+
+      - name: Build
+        run: |
+          pnpm build
+
+      - name: Prebuildify
+        run: |
+          pnpm build:gyp -t $(node -v) --arch x64
+          pnpm build:gyp -t $(node -v) --arch arm64
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v5
         with:
           name: build
           path: |
@@ -34,17 +63,18 @@ jobs:
             dist/
 
   test:
-    needs: build
+    needs: [build-linux, build-darwin]
     strategy:
       matrix:
         node: ['lts/-1', 'lts/*', 'latest']
-    runs-on: ubuntu-latest
+        os: ['ubuntu-latest', 'macos-latest']
+    runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: build
 
