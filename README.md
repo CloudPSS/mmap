@@ -150,7 +150,8 @@ Memory mapping provides several advantages over traditional file I/O:
 
 Currently, this package is optimized for and supports:
 
-- **Linux** (all architectures)
+- **Linux**
+- **Darwin (macOS)**
 
 Support for additional platforms may be added in future versions.
 
