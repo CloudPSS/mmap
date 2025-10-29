@@ -1,8 +1,11 @@
 import { createRequire } from 'node:module';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
-const rootDir = resolve(import.meta.dirname, './../');
+// eslint-disable-next-line unicorn/prefer-import-meta-properties
+const __dirname = import.meta.dirname || dirname(fileURLToPath(import.meta.url));
+const rootDir = resolve(__dirname, './../');
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call
 const bindings = require('node-gyp-build')(rootDir) as {
