@@ -5,7 +5,7 @@
 #include <napi.h>
 #include <memory>
 
-auto open_file(const std::string &path) -> std::unique_ptr<int, void (*)(int *)>
+std::unique_ptr<int, void (*)(int *)> open_file(const Napi::Env &env, const std::string &path)
 {
   int fd = 0;
   // If the path starts with /dev/shm/, and contains no other slashes, open it as a shared memory object
@@ -21,7 +21,7 @@ auto open_file(const std::string &path) -> std::unique_ptr<int, void (*)(int *)>
   if (fd == -1)
   {
     Napi::TypeError::New(env, "open failed, errno=" + std::to_string(errno)).ThrowAsJavaScriptException();
-    return nullptr;
+    return std::unique_ptr<int, void (*)(int *)>(nullptr, nullptr);
   }
   return std::unique_ptr<int, void (*)(int *)>(new int(fd), [](int *fd)
                                                { ::close(*fd); delete fd; });
@@ -48,7 +48,7 @@ Napi::Buffer<uint8_t> node_mmap(const Napi::CallbackInfo &info)
   }
   auto length = info[1].As<Napi::Number>().Int64Value();
   const auto path = info[0].As<Napi::String>().Utf8Value();
-  const auto fd = open_file(path);
+  const auto fd = open_file(env, path);
   if (!fd)
   {
     return Napi::Buffer<uint8_t>::New(env, 0);
