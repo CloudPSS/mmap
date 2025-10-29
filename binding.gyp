@@ -10,6 +10,7 @@
                 "lib",
             ],
             "defines": ["NAPI_DISABLE_CPP_EXCEPTIONS", "NDEBUG"],
+            "conditions": [["OS=='linux'", {"libraries": ["-lrt"]}]],
         }
     ]
 }
