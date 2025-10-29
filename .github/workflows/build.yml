@@ -28,7 +28,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v5
         with:
-          name: build
+          name: build-linux
           path: |
             prebuilds/
             dist/
@@ -57,7 +57,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v5
         with:
-          name: build
+          name: build-darwin
           path: |
             prebuilds/
             dist/
@@ -74,9 +74,10 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Download artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
-          name: build
+          pattern: build-*
+          merge-multiple: true
 
       - name: Install
         uses: wyvox/action-setup-pnpm@v3
