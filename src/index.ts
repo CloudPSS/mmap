@@ -26,7 +26,7 @@ type ArrayBufferViewConstructor<T> = {
  *
  * Maps a file into memory and returns a Buffer representing the mapped region.
  * If the file doesn't exist, an error will be thrown.
- * @param path - Path to the file to be memory-mapped
+ * @param path - Path to the file to be memory-mapped, use `/dev/shm/<name>` to create a POSIX shared memory object.
  * @param byteLength - Length of the memory mapping in bytes. If not provided,
  *                     the entire file will be mapped. If the length is larger
  *                     than the file size, the file will be extended with zeros.
@@ -54,7 +54,7 @@ export function mmap(path: string, byteLength?: number): Buffer;
  * @template T - The type of the returned array buffer view
  * @param view - Constructor for the desired {@link ArrayBufferView},
  *               (e.g., {@link Int32Array}, {@link Float64Array}, {@link DataView})
- * @param path - Path to the file to be memory-mapped
+ * @param path - Path to the file to be memory-mapped, use `/dev/shm/<name>` to create a POSIX shared memory object.
  * @param byteLength - Length of the memory mapping in bytes. If not provided,
  *                     the entire file will be mapped. If the length is larger
  *                     than the file size, the file will be extended with zeros.

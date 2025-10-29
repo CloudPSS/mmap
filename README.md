@@ -18,7 +18,7 @@ npm install @cloudpss/mmap
 ## Requirements
 
 - **Node.js**: >= 14.16
-- **OS**: Linux (currently supported platform)
+- **OS**: Linux, Darwin
 
 ## Usage
 
@@ -109,7 +109,7 @@ Creates a memory-mapped Buffer from a file.
 
 **Parameters:**
 
-- `path` - Path to the file to be memory-mapped
+- `path` - Path to the file to be memory-mapped, use `/dev/shm/<name>` to create a POSIX shared memory object.
 - `byteLength` (optional) - Number of bytes to map. If not provided, maps the entire file. If larger than file size, extends the file with zeros.
 
 **Returns:** A Buffer representing the memory-mapped file
@@ -126,7 +126,7 @@ Creates a memory-mapped typed array or view from a file.
 **Parameters:**
 
 - `view` - Constructor for the desired typed array (Int8Array, Uint8Array, Int16Array, Uint16Array, Int32Array, Uint32Array, Float32Array, Float64Array, BigInt64Array, BigUint64Array, DataView)
-- `path` - Path to the file to be memory-mapped
+- `path` - Path to the file to be memory-mapped, use `/dev/shm/<name>` to create a POSIX shared memory object.
 - `byteLength` (optional) - Number of bytes to map
 
 **Returns:** A typed array or DataView of the specified type
