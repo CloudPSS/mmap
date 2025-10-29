@@ -100,7 +100,7 @@ export function mmap(a0: string | ArrayBufferViewConstructor<unknown>, a1?: stri
     if (typeof path !== 'string') throw new TypeError('path must be a string');
     byteLength = Math.trunc(Number(byteLength));
     if (!Number.isSafeInteger(byteLength) || byteLength <= 0) byteLength = -1;
-    path = resolve(path);
+    path = path.startsWith('/dev/shm/') ? path : resolve(path);
 
     const map = bindings.mmap(path, byteLength);
 
