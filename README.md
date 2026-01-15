@@ -154,10 +154,11 @@ This package is optimized for and supports:
 - **Darwin (macOS)**
 - **Windows**
 
-### Platform-Specific Notes
+### Shared Memory
 
-- **Linux/macOS**: Use `/dev/shm/<name>` to create POSIX shared memory objects
-- **Windows**: Standard memory-mapped file APIs are used. The `/dev/shm/` path convention is not supported on Windows; use regular file paths instead.
+Use `/dev/shm/<name>` to create shared memory objects on all platforms:
+- **Linux/macOS**: Uses POSIX shared memory (`shm_open`)
+- **Windows**: Uses named file mapping backed by the system paging file (`CreateFileMappingA` with `INVALID_HANDLE_VALUE`)
 
 ## Error Handling
 

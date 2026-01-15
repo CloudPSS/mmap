@@ -24,6 +24,17 @@ struct WinHandles
   }
 };
 
+// Check if path is a shared memory path (/dev/shm/<name>)
+bool is_shm_path(const std::string &path, std::string &shm_name)
+{
+  if (path.rfind("/dev/shm/", 0) == 0 && path.find('/', 10) == std::string::npos)
+  {
+    shm_name = path.substr(9); // remove /dev/shm/
+    return true;
+  }
+  return false;
+}
+
 Napi::Buffer<uint8_t> node_mmap(const Napi::CallbackInfo &info)
 {
   Napi::Env env = info.Env();
@@ -49,68 +60,107 @@ Napi::Buffer<uint8_t> node_mmap(const Napi::CallbackInfo &info)
 
   auto handles = std::make_unique<WinHandles>();
 
-  // Open or create the file
-  handles->hFile = CreateFileA(
-      path.c_str(),
-      GENERIC_READ | GENERIC_WRITE,
-      FILE_SHARE_READ | FILE_SHARE_WRITE,
-      NULL,
-      OPEN_ALWAYS,
-      FILE_ATTRIBUTE_NORMAL,
-      NULL);
+  std::string shm_name;
+  bool is_shm = is_shm_path(path, shm_name);
 
-  if (handles->hFile == INVALID_HANDLE_VALUE)
+  if (is_shm)
   {
-    Napi::TypeError::New(env, "CreateFile failed, error=" + std::to_string(GetLastError())).ThrowAsJavaScriptException();
-    return Napi::Buffer<uint8_t>::New(env, 0);
-  }
-
-  // Get file size
-  LARGE_INTEGER fileSize;
-  if (!GetFileSizeEx(handles->hFile, &fileSize))
-  {
-    Napi::TypeError::New(env, "GetFileSizeEx failed, error=" + std::to_string(GetLastError())).ThrowAsJavaScriptException();
-    return Napi::Buffer<uint8_t>::New(env, 0);
-  }
-
-  if (length <= 0)
-  {
-    length = fileSize.QuadPart;
-  }
-  else if (length > fileSize.QuadPart)
-  {
-    // Extend file to requested length
-    LARGE_INTEGER newSize;
-    newSize.QuadPart = length;
-    if (!SetFilePointerEx(handles->hFile, newSize, NULL, FILE_BEGIN) ||
-        !SetEndOfFile(handles->hFile))
+    // Shared memory: use INVALID_HANDLE_VALUE to create mapping backed by system paging file
+    if (length <= 0)
     {
-      // If extension fails, use original size
-      length = fileSize.QuadPart;
+      // For shared memory without specified length, try to open existing mapping first
+      handles->hMapping = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, shm_name.c_str());
+      if (handles->hMapping == NULL)
+      {
+        Napi::TypeError::New(env, "OpenFileMapping failed for shm without length, error=" + std::to_string(GetLastError())).ThrowAsJavaScriptException();
+        return Napi::Buffer<uint8_t>::New(env, 0);
+      }
+      // We cannot determine the size of an existing mapping, so return empty buffer
+      return Napi::Buffer<uint8_t>::New(env, 0);
+    }
+
+    DWORD sizeHigh = static_cast<DWORD>((length >> 32) & 0xFFFFFFFF);
+    DWORD sizeLow = static_cast<DWORD>(length & 0xFFFFFFFF);
+
+    handles->hMapping = CreateFileMappingA(
+        INVALID_HANDLE_VALUE,
+        NULL,
+        PAGE_READWRITE,
+        sizeHigh,
+        sizeLow,
+        shm_name.c_str());
+
+    if (handles->hMapping == NULL)
+    {
+      Napi::TypeError::New(env, "CreateFileMapping failed for shm, error=" + std::to_string(GetLastError())).ThrowAsJavaScriptException();
+      return Napi::Buffer<uint8_t>::New(env, 0);
     }
   }
-
-  if (length <= 0)
+  else
   {
-    return Napi::Buffer<uint8_t>::New(env, 0);
-  }
+    // Regular file mapping
+    handles->hFile = CreateFileA(
+        path.c_str(),
+        GENERIC_READ | GENERIC_WRITE,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        NULL,
+        OPEN_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL);
 
-  // Create file mapping
-  DWORD sizeHigh = static_cast<DWORD>((length >> 32) & 0xFFFFFFFF);
-  DWORD sizeLow = static_cast<DWORD>(length & 0xFFFFFFFF);
+    if (handles->hFile == INVALID_HANDLE_VALUE)
+    {
+      Napi::TypeError::New(env, "CreateFile failed, error=" + std::to_string(GetLastError())).ThrowAsJavaScriptException();
+      return Napi::Buffer<uint8_t>::New(env, 0);
+    }
 
-  handles->hMapping = CreateFileMappingA(
-      handles->hFile,
-      NULL,
-      PAGE_READWRITE,
-      sizeHigh,
-      sizeLow,
-      NULL);
+    // Get file size
+    LARGE_INTEGER fileSize;
+    if (!GetFileSizeEx(handles->hFile, &fileSize))
+    {
+      Napi::TypeError::New(env, "GetFileSizeEx failed, error=" + std::to_string(GetLastError())).ThrowAsJavaScriptException();
+      return Napi::Buffer<uint8_t>::New(env, 0);
+    }
 
-  if (handles->hMapping == NULL)
-  {
-    Napi::TypeError::New(env, "CreateFileMapping failed, error=" + std::to_string(GetLastError())).ThrowAsJavaScriptException();
-    return Napi::Buffer<uint8_t>::New(env, 0);
+    if (length <= 0)
+    {
+      length = fileSize.QuadPart;
+    }
+    else if (length > fileSize.QuadPart)
+    {
+      // Extend file to requested length
+      LARGE_INTEGER newSize;
+      newSize.QuadPart = length;
+      if (!SetFilePointerEx(handles->hFile, newSize, NULL, FILE_BEGIN) ||
+          !SetEndOfFile(handles->hFile))
+      {
+        // If extension fails, use original size
+        length = fileSize.QuadPart;
+      }
+    }
+
+    if (length <= 0)
+    {
+      return Napi::Buffer<uint8_t>::New(env, 0);
+    }
+
+    // Create file mapping
+    DWORD sizeHigh = static_cast<DWORD>((length >> 32) & 0xFFFFFFFF);
+    DWORD sizeLow = static_cast<DWORD>(length & 0xFFFFFFFF);
+
+    handles->hMapping = CreateFileMappingA(
+        handles->hFile,
+        NULL,
+        PAGE_READWRITE,
+        sizeHigh,
+        sizeLow,
+        NULL);
+
+    if (handles->hMapping == NULL)
+    {
+      Napi::TypeError::New(env, "CreateFileMapping failed, error=" + std::to_string(GetLastError())).ThrowAsJavaScriptException();
+      return Napi::Buffer<uint8_t>::New(env, 0);
+    }
   }
 
   // Map view of file
