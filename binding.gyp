@@ -15,13 +15,14 @@
                 [
                     "OS=='win'",
                     {
+                        "defines": ["NOMINMAX", "WIN32_LEAN_AND_MEAN"],
                         "msvs_settings": {
                             "VCCLCompilerTool": {
                                 "ExceptionHandling": 1,
                             }
-                        }
-                    }
-                ]
+                        },
+                    },
+                ],
             ],
         }
     ]

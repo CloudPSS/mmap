@@ -1,10 +1,21 @@
 #include <napi.h>
 #include <memory>
 
+// Extract shm name from path
+std::string get_shm_name(const std::string &path)
+{
+  if (path.rfind("/dev/shm/", 0) == 0 && path.find('/', 10) == std::string::npos)
+  {
+    return path.substr(9); // remove /dev/shm/ to get just the name
+  }
+  return "";
+}
+
+// Platform-specific implementations
+Napi::Buffer<uint8_t> node_mmap_impl(const Napi::Env &env, std::string path, int64_t length);
+
 #ifdef _WIN32
 // Windows implementation
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
 #include <windows.h>
 #include <io.h>
 #include <fcntl.h>
@@ -24,46 +35,13 @@ struct WinHandles
   }
 };
 
-// Check if path is a shared memory path (/dev/shm/<name>)
-bool is_shm_path(const std::string &path, std::string &shm_name)
+Napi::Buffer<uint8_t> node_mmap_impl(const Napi::Env &env, std::string path, int64_t length)
 {
-  if (path.rfind("/dev/shm/", 0) == 0 && path.find('/', 10) == std::string::npos)
-  {
-    shm_name = path.substr(9); // remove /dev/shm/ to get just the name
-    return true;
-  }
-  return false;
-}
-
-Napi::Buffer<uint8_t> node_mmap(const Napi::CallbackInfo &info)
-{
-  Napi::Env env = info.Env();
-  if (info.Length() != 2)
-  {
-    Napi::TypeError::New(env, "Wrong number of arguments")
-        .ThrowAsJavaScriptException();
-    return Napi::Buffer<uint8_t>::New(env, 0);
-  }
-  if (!info[0].IsString())
-  {
-    Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
-    return Napi::Buffer<uint8_t>::New(env, 0);
-  }
-  if (!info[1].IsNumber())
-  {
-    Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
-    return Napi::Buffer<uint8_t>::New(env, 0);
-  }
-
-  auto length = info[1].As<Napi::Number>().Int64Value();
-  const auto path = info[0].As<Napi::String>().Utf8Value();
-
   auto handles = std::make_unique<WinHandles>();
 
-  std::string shm_name;
-  bool is_shm = is_shm_path(path, shm_name);
+  const auto shm_name = get_shm_name(path);
 
-  if (is_shm)
+  if (!shm_name.empty())
   {
     // Shared memory: use INVALID_HANDLE_VALUE to create mapping backed by system paging file
     if (length <= 0)
@@ -231,10 +209,9 @@ Napi::Buffer<uint8_t> node_mmap(const Napi::CallbackInfo &info)
 std::unique_ptr<int, void (*)(int *)> open_file(const Napi::Env &env, const std::string &path)
 {
   int fd = 0;
-  // If the path starts with /dev/shm/, and contains no other slashes, open it as a shared memory object
-  if (path.rfind("/dev/shm/", 0) == 0 && path.find('/', 10) == std::string::npos)
+  const auto shm_name = get_shm_name(path);
+  if (!shm_name.empty())
   {
-    auto shm_name = path.substr(8); // remove /dev/shm
     fd = ::shm_open(shm_name.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
   }
   else
@@ -250,27 +227,8 @@ std::unique_ptr<int, void (*)(int *)> open_file(const Napi::Env &env, const std:
                                                { ::close(*fd); delete fd; });
 }
 
-Napi::Buffer<uint8_t> node_mmap(const Napi::CallbackInfo &info)
+Napi::Buffer<uint8_t> node_mmap_impl(const Napi::Env &env, std::string path, int64_t length)
 {
-  Napi::Env env = info.Env();
-  if (info.Length() != 2)
-  {
-    Napi::TypeError::New(env, "Wrong number of arguments")
-        .ThrowAsJavaScriptException();
-    return Napi::Buffer<uint8_t>::New(env, 0);
-  }
-  if (!info[0].IsString())
-  {
-    Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
-    return Napi::Buffer<uint8_t>::New(env, 0);
-  }
-  if (!info[1].IsNumber())
-  {
-    Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
-    return Napi::Buffer<uint8_t>::New(env, 0);
-  }
-  auto length = info[1].As<Napi::Number>().Int64Value();
-  const auto path = info[0].As<Napi::String>().Utf8Value();
   const auto fd = open_file(env, path);
   if (!fd)
   {
@@ -309,6 +267,29 @@ Napi::Buffer<uint8_t> node_mmap(const Napi::CallbackInfo &info)
 }
 
 #endif
+Napi::Buffer<uint8_t> node_mmap(const Napi::CallbackInfo &info)
+{
+  Napi::Env env = info.Env();
+  if (info.Length() != 2)
+  {
+    Napi::TypeError::New(env, "Wrong number of arguments")
+        .ThrowAsJavaScriptException();
+    return Napi::Buffer<uint8_t>::New(env, 0);
+  }
+  if (!info[0].IsString())
+  {
+    Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
+    return Napi::Buffer<uint8_t>::New(env, 0);
+  }
+  if (!info[1].IsNumber())
+  {
+    Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
+    return Napi::Buffer<uint8_t>::New(env, 0);
+  }
+  auto length = info[1].As<Napi::Number>().Int64Value();
+  const auto path = info[0].As<Napi::String>().Utf8Value();
+  return node_mmap_impl(env, path, length);
+}
 
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {

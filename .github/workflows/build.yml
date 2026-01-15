@@ -82,6 +82,7 @@ jobs:
         shell: bash
         run: |
           pnpm build:gyp -t $(node -v) --arch x64
+          pnpm build:gyp -t $(node -v) --arch arm64
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v5
