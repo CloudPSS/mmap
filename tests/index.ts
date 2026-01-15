@@ -1,11 +1,10 @@
 import { mmap } from '@cloudpss/mmap';
 import fs from 'node:fs/promises';
-import fsSync from 'node:fs';
 import { randomBytes, randomFillSync } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 
-const dir = fsSync.existsSync('/dev/shm') ? '/dev/shm' : tmpdir();
+const dir = tmpdir();
 
 describe('mmap', () => {
     it('should reject bad input', () => {
@@ -26,8 +25,8 @@ describe('mmap', () => {
 
     it('should work with empty file', async () => {
         const data = randomBytes(0);
-        await fs.writeFile(resolve(dir, 'xx'), data);
-        const mapped = mmap(resolve(dir, 'xx'));
+        await fs.writeFile(resolve(dir, 'yy'), data);
+        const mapped = mmap(resolve(dir, 'yy'));
         expect(mapped).toBeInstanceOf(Buffer);
         expect(mapped).toHaveLength(0);
         expect(mapped).toEqual(data);
@@ -35,8 +34,8 @@ describe('mmap', () => {
 
     it('should work with smaller size', async () => {
         const data = randomBytes(1024);
-        await fs.writeFile(resolve(dir, 'yy'), data);
-        const mapped = mmap(resolve(dir, 'yy'), 128);
+        await fs.writeFile(resolve(dir, 'zz'), data);
+        const mapped = mmap(resolve(dir, 'zz'), 128);
         expect(mapped).toBeInstanceOf(Buffer);
         expect(mapped).toHaveLength(128);
         expect(mapped).toEqual(data.subarray(0, 128));
@@ -44,19 +43,19 @@ describe('mmap', () => {
 
     it('should work with lager size', async () => {
         const data = randomBytes(1024);
-        await fs.writeFile(resolve(dir, 'zz'), data);
-        const mapped = mmap(resolve(dir, 'zz'), 2048);
+        await fs.writeFile(resolve(dir, 'ww'), data);
+        const mapped = mmap(resolve(dir, 'ww'), 2048);
         expect(mapped).toBeInstanceOf(Buffer);
         expect(mapped).toHaveLength(2048);
         expect(mapped.subarray(0, 1024)).toEqual(data);
         expect(mapped.subarray(1024)).toEqual(Buffer.alloc(1024));
-        expect((await fs.stat(resolve(dir, 'zz'))).size).toBe(2048);
+        expect((await fs.stat(resolve(dir, 'ww'))).size).toBe(2048);
     });
 
     it('should accept custom view', async () => {
         const data = randomBytes(1024);
-        await fs.writeFile(resolve(dir, 'xx'), data);
-        const mapped = mmap(DataView, resolve(dir, 'xx'));
+        await fs.writeFile(resolve(dir, 'aa'), data);
+        const mapped = mmap(DataView, resolve(dir, 'aa'));
         expect(mapped).toBeInstanceOf(DataView);
         expect(mapped.byteLength).toBe(1024);
         expect(mapped.buffer).toEqual(data.buffer);
@@ -64,8 +63,8 @@ describe('mmap', () => {
 
     it('should accept custom view', async () => {
         const data = randomBytes(1024);
-        await fs.writeFile(resolve(dir, 'xx'), data);
-        const mapped = mmap(Int32Array, resolve(dir, 'xx'), 6);
+        await fs.writeFile(resolve(dir, 'bb'), data);
+        const mapped = mmap(Int32Array, resolve(dir, 'bb'), 6);
         expect(mapped).toBeInstanceOf(Int32Array);
         expect(mapped).toHaveLength(1);
         expect(mapped.byteLength).toBe(4);

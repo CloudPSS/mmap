@@ -62,12 +62,42 @@ jobs:
             prebuilds/
             dist/
 
+  build-win32:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install
+        uses: wyvox/action-setup-pnpm@v3
+        with:
+          node-version: 22
+          args: --ignore-scripts
+
+      - name: Build
+        run: |
+          pnpm build
+
+      - name: Prebuildify
+        shell: bash
+        run: |
+          pnpm build:gyp -t $(node -v) --arch x64
+          pnpm build:gyp -t $(node -v) --arch arm64
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: build-win32
+          path: |
+            prebuilds/
+            dist/
+
   test:
-    needs: [build-linux, build-darwin]
+    needs: [build-linux, build-darwin, build-win32]
     strategy:
       matrix:
         node: ['lts/-1', 'lts/*', 'latest']
-        os: ['ubuntu-latest', 'macos-latest']
+        os: ['ubuntu-latest', 'macos-latest', 'windows-latest']
     runs-on: ${{ matrix.os }}
 
     steps:
