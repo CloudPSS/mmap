@@ -29,7 +29,7 @@ bool is_shm_path(const std::string &path, std::string &shm_name)
 {
   if (path.rfind("/dev/shm/", 0) == 0 && path.find('/', 10) == std::string::npos)
   {
-    shm_name = path.substr(9); // remove /dev/shm/
+    shm_name = path.substr(9); // remove /dev/shm/ to get just the name
     return true;
   }
   return false;
@@ -68,15 +68,46 @@ Napi::Buffer<uint8_t> node_mmap(const Napi::CallbackInfo &info)
     // Shared memory: use INVALID_HANDLE_VALUE to create mapping backed by system paging file
     if (length <= 0)
     {
-      // For shared memory without specified length, try to open existing mapping first
+      // For shared memory without specified length, try to open existing mapping
       handles->hMapping = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, shm_name.c_str());
       if (handles->hMapping == NULL)
       {
         Napi::TypeError::New(env, "OpenFileMapping failed for shm without length, error=" + std::to_string(GetLastError())).ThrowAsJavaScriptException();
         return Napi::Buffer<uint8_t>::New(env, 0);
       }
-      // We cannot determine the size of an existing mapping, so return empty buffer
-      return Napi::Buffer<uint8_t>::New(env, 0);
+
+      // Map the entire view to determine size using VirtualQuery
+      void *ptr = MapViewOfFile(handles->hMapping, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+      if (ptr == NULL)
+      {
+        Napi::TypeError::New(env, "MapViewOfFile failed, error=" + std::to_string(GetLastError())).ThrowAsJavaScriptException();
+        return Napi::Buffer<uint8_t>::New(env, 0);
+      }
+
+      MEMORY_BASIC_INFORMATION mbi;
+      if (VirtualQuery(ptr, &mbi, sizeof(mbi)) == 0)
+      {
+        UnmapViewOfFile(ptr);
+        Napi::TypeError::New(env, "VirtualQuery failed, error=" + std::to_string(GetLastError())).ThrowAsJavaScriptException();
+        return Napi::Buffer<uint8_t>::New(env, 0);
+      }
+
+      length = static_cast<int64_t>(mbi.RegionSize);
+      if (length <= 0)
+      {
+        UnmapViewOfFile(ptr);
+        return Napi::Buffer<uint8_t>::New(env, 0);
+      }
+
+      auto handlesPtr = std::make_shared<std::unique_ptr<WinHandles>>(std::move(handles));
+      return Napi::Buffer<uint8_t>::New(
+          env,
+          static_cast<uint8_t *>(ptr),
+          static_cast<size_t>(length),
+          [handlesPtr](Napi::Env env, void *data)
+          {
+            UnmapViewOfFile(data);
+          });
     }
 
     DWORD sizeHigh = static_cast<DWORD>((length >> 32) & 0xFFFFFFFF);
