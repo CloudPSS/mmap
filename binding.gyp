@@ -21,6 +21,10 @@
                                 "ExceptionHandling": 1,
                             }
                         },
+                        "sources": ["lib/win.cc"],
+                    },
+                    {
+                        "sources": ["lib/posix.cc"],
                     },
                 ],
             ],
