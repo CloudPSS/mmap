@@ -10,7 +10,19 @@
                 "lib",
             ],
             "defines": ["NAPI_DISABLE_CPP_EXCEPTIONS", "NDEBUG"],
-            "conditions": [["OS=='linux'", {"libraries": ["-lrt"]}]],
+            "conditions": [
+                ["OS=='linux'", {"libraries": ["-lrt"]}],
+                [
+                    "OS=='win'",
+                    {
+                        "msvs_settings": {
+                            "VCCLCompilerTool": {
+                                "ExceptionHandling": 1,
+                            }
+                        }
+                    }
+                ]
+            ],
         }
     ]
 }

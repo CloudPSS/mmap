@@ -73,7 +73,13 @@ describe('mmap', () => {
 });
 
 describe('mmap shm', () => {
+    const hasShmSupport = fsSync.existsSync('/dev/shm');
+
     it('should work', () => {
+        if (!hasShmSupport) {
+            // Skip on Windows and other platforms without /dev/shm
+            return;
+        }
         const mapped = mmap('/dev/shm/mmap', 1024);
         expect(mapped).toBeInstanceOf(Buffer);
         expect(mapped).toHaveLength(1024);

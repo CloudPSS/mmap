@@ -18,7 +18,7 @@ npm install @cloudpss/mmap
 ## Requirements
 
 - **Node.js**: >= 14.16
-- **OS**: Linux, Darwin
+- **OS**: Linux, Darwin, Windows
 
 ## Usage
 
@@ -148,12 +148,16 @@ Memory mapping provides several advantages over traditional file I/O:
 
 ## Platform Support
 
-Currently, this package is optimized for and supports:
+This package is optimized for and supports:
 
 - **Linux**
 - **Darwin (macOS)**
+- **Windows**
 
-Support for additional platforms may be added in future versions.
+### Platform-Specific Notes
+
+- **Linux/macOS**: Use `/dev/shm/<name>` to create POSIX shared memory objects
+- **Windows**: Standard memory-mapped file APIs are used. The `/dev/shm/` path convention is not supported on Windows; use regular file paths instead.
 
 ## Error Handling
 

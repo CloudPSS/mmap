@@ -1,9 +1,151 @@
+#include <napi.h>
+#include <memory>
+
+#ifdef _WIN32
+// Windows implementation
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+#include <io.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+
+struct WinHandles
+{
+  HANDLE hFile;
+  HANDLE hMapping;
+  WinHandles() : hFile(INVALID_HANDLE_VALUE), hMapping(NULL) {}
+  ~WinHandles()
+  {
+    if (hMapping != NULL)
+      CloseHandle(hMapping);
+    if (hFile != INVALID_HANDLE_VALUE)
+      CloseHandle(hFile);
+  }
+};
+
+Napi::Buffer<uint8_t> node_mmap(const Napi::CallbackInfo &info)
+{
+  Napi::Env env = info.Env();
+  if (info.Length() != 2)
+  {
+    Napi::TypeError::New(env, "Wrong number of arguments")
+        .ThrowAsJavaScriptException();
+    return Napi::Buffer<uint8_t>::New(env, 0);
+  }
+  if (!info[0].IsString())
+  {
+    Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
+    return Napi::Buffer<uint8_t>::New(env, 0);
+  }
+  if (!info[1].IsNumber())
+  {
+    Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
+    return Napi::Buffer<uint8_t>::New(env, 0);
+  }
+
+  auto length = info[1].As<Napi::Number>().Int64Value();
+  const auto path = info[0].As<Napi::String>().Utf8Value();
+
+  auto handles = std::make_unique<WinHandles>();
+
+  // Open or create the file
+  handles->hFile = CreateFileA(
+      path.c_str(),
+      GENERIC_READ | GENERIC_WRITE,
+      FILE_SHARE_READ | FILE_SHARE_WRITE,
+      NULL,
+      OPEN_ALWAYS,
+      FILE_ATTRIBUTE_NORMAL,
+      NULL);
+
+  if (handles->hFile == INVALID_HANDLE_VALUE)
+  {
+    Napi::TypeError::New(env, "CreateFile failed, error=" + std::to_string(GetLastError())).ThrowAsJavaScriptException();
+    return Napi::Buffer<uint8_t>::New(env, 0);
+  }
+
+  // Get file size
+  LARGE_INTEGER fileSize;
+  if (!GetFileSizeEx(handles->hFile, &fileSize))
+  {
+    Napi::TypeError::New(env, "GetFileSizeEx failed, error=" + std::to_string(GetLastError())).ThrowAsJavaScriptException();
+    return Napi::Buffer<uint8_t>::New(env, 0);
+  }
+
+  if (length <= 0)
+  {
+    length = fileSize.QuadPart;
+  }
+  else if (length > fileSize.QuadPart)
+  {
+    // Extend file to requested length
+    LARGE_INTEGER newSize;
+    newSize.QuadPart = length;
+    if (!SetFilePointerEx(handles->hFile, newSize, NULL, FILE_BEGIN) ||
+        !SetEndOfFile(handles->hFile))
+    {
+      // If extension fails, use original size
+      length = fileSize.QuadPart;
+    }
+  }
+
+  if (length <= 0)
+  {
+    return Napi::Buffer<uint8_t>::New(env, 0);
+  }
+
+  // Create file mapping
+  DWORD sizeHigh = static_cast<DWORD>((length >> 32) & 0xFFFFFFFF);
+  DWORD sizeLow = static_cast<DWORD>(length & 0xFFFFFFFF);
+
+  handles->hMapping = CreateFileMappingA(
+      handles->hFile,
+      NULL,
+      PAGE_READWRITE,
+      sizeHigh,
+      sizeLow,
+      NULL);
+
+  if (handles->hMapping == NULL)
+  {
+    Napi::TypeError::New(env, "CreateFileMapping failed, error=" + std::to_string(GetLastError())).ThrowAsJavaScriptException();
+    return Napi::Buffer<uint8_t>::New(env, 0);
+  }
+
+  // Map view of file
+  void *ptr = MapViewOfFile(
+      handles->hMapping,
+      FILE_MAP_ALL_ACCESS,
+      0,
+      0,
+      static_cast<SIZE_T>(length));
+
+  if (ptr == NULL)
+  {
+    Napi::TypeError::New(env, "MapViewOfFile failed, error=" + std::to_string(GetLastError())).ThrowAsJavaScriptException();
+    return Napi::Buffer<uint8_t>::New(env, 0);
+  }
+
+  // Transfer ownership of handles to the release shared_ptr
+  auto handlesPtr = std::make_shared<std::unique_ptr<WinHandles>>(std::move(handles));
+  return Napi::Buffer<uint8_t>::New(
+      env,
+      static_cast<uint8_t *>(ptr),
+      static_cast<size_t>(length),
+      [handlesPtr](Napi::Env env, void *data)
+      {
+        UnmapViewOfFile(data);
+        // handles are automatically closed when handlesPtr is destroyed
+      });
+}
+
+#else
+// POSIX implementation
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/fcntl.h>
 #include <unistd.h>
-#include <napi.h>
-#include <memory>
 
 std::unique_ptr<int, void (*)(int *)> open_file(const Napi::Env &env, const std::string &path)
 {
@@ -84,6 +226,8 @@ Napi::Buffer<uint8_t> node_mmap(const Napi::CallbackInfo &info)
   return Napi::Buffer<uint8_t>::New(env, static_cast<uint8_t *>(ptr), length, [=](Napi::Env env, void *data)
                                     { munmap(data, length); });
 }
+
+#endif
 
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {
